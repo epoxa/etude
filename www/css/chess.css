@@ -1,0 +1,131 @@
+html, body {
+    font-size: 11vmin;
+    background-color: rgba(52, 89, 49, 0.88);
+    height: 100%;
+    margin: 0;
+}
+
+* {
+    touch-action: none;
+}
+
+.ui-draggable-dragging {
+    z-index: 10!important;
+    text-shadow: 3px 3px 5px rgba(49, 22, 0, 0.91) !important;
+    padding-left: 0!important;
+}
+
+.ui-draggable-dragging.b {
+    z-index: 10!important;
+    text-shadow: 2px 2px 3px rgba(21, 10, 0, 0.89) !important;
+}
+
+
+/* Цвета */
+
+i {
+    color: rgba(253, 115, 42, 0.95);
+    z-index: 2;
+    text-shadow: 1px 1px 0 #68562d;
+    padding-left: 0.05em;
+}
+
+/* div для клеток доски, i для фигур */
+
+div, i {
+    position: absolute;
+    display: inline-block;
+    font-style: normal;
+    width: 1em;
+    height: 1em;
+}
+
+div {
+    background-color: rgba(248, 215, 181, 0.96);
+}
+
+div.desk {
+    box-shadow: 4px 4px rgba(9, 22, 0, 0.96);
+    border-radius: 3px;
+    top: 1.9em;
+    left: 0.4em;
+    width: 8.2em;
+    height: 8.2em;
+    /*z-index: -1;*/
+}
+
+/* b - black, черный. Используется и для клеток и для фигур */
+
+.b {
+    color: rgba(32, 16, 1, 0.99);
+}
+
+div.b {
+    background-color: #eac187;
+}
+
+/* Геометрия доски */
+
+*[data-row="1"] { top: 9em}
+*[data-row="2"] { top: 8em}
+*[data-row="3"] { top: 7em}
+*[data-row="4"] { top: 6em}
+*[data-row="5"] { top: 5em}
+*[data-row="6"] { top: 4em}
+*[data-row="7"] { top: 3em}
+*[data-row="8"] { top: 2em}
+
+*[data-row="9"] { top: 0.3em; font-size: 70%; margin-left: 1.9em}
+*[data-row="10"] { top: 1.3em; font-size: 70%; margin-left: 1.9em}
+*[data-row="11"] { top: 14.8em; font-size: 70%; margin-left: 1.9em}
+*[data-row="12"] { top: 15.8em; font-size: 70%; margin-left: 1.9em}
+
+*[data-col="1"] { left: 0.5em}
+*[data-col="2"] { left: 1.5em}
+*[data-col="3"] { left: 2.5em}
+*[data-col="4"] { left: 3.5em}
+*[data-col="5"] { left: 4.5em}
+*[data-col="6"] { left: 5.5em}
+*[data-col="7"] { left: 6.5em}
+*[data-col="8"] { left: 7.5em}
+
+/* Ладья */
+
+.rook::before {
+    content: "\265C";
+}
+
+/* Конь */
+
+.knight::before {
+    content: "\265E";
+}
+
+/* Слон */
+
+.bishop::before {
+    content: "\265D";
+}
+
+/* Король */
+
+.king::before {
+    content: "\265A";
+}
+
+/* Ферзь */
+
+.queen::before {
+    content: "\265B";
+}
+
+/* Пешка */
+
+.pawn::before {
+    content: "\265F";
+}
+
+*::before {
+    padding-left: 0.05em;
+}
+
