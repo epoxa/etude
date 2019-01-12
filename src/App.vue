@@ -10,7 +10,9 @@ export default {
 }
 </script>
 
-<style>
+<style rel="stylesheet/less" lang="less">
+
+  @import "config.less";
 
   html, body {
     height: 100%;
@@ -28,19 +30,23 @@ export default {
     color: #2c3e50;
     height: 100%;
     width: 100%;
-    background-color: rgba(52, 89, 49, 0.88);
+    background-color: @table-color;
   }
 
   i {
     font-style: normal;
   }
 
+  .ui-draggable-dragging {
+    z-index: 10;
+  }
+
   i.black {
-    color: #222222;
+    color: @black-figure-color;
   }
 
   i.white {
-    color: rgba(253, 115, 42, 0.95);
+    color: @white-figure-color;
   }
 
   /* Ладья */
