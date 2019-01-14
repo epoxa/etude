@@ -30,6 +30,7 @@
     data() {
       return {
         positions: {},
+        enPassant: null,
         turn: 'white',
       }
     },
@@ -106,11 +107,66 @@
         }, this);
         return all;
       },
+      parsePosition(all) {
+        all = all.split('-');
+        if (all.length !== 2) return false;
+        if (all[0].substring(0, 2) !== 'w:' || all[1].substring(0, 2) !== 'b:') return false;
+        all = {
+          white: all[0].substring(2),
+          black: all[1].substring(2)
+        };
+        let used = {}, newPositions = {}, ok = true, $root = this.$root;
+        function findUnused(abbr, color) {
+          return $root.figures.reduce((found, id) => {
+            if (found) return found;
+            if (used[id]) return null;
+            let fig = $root.getData(id);
+            if (fig.abbreviation === abbr && fig.color === color) {
+              used[id] = true;
+              return id;
+            }
+          }, null);
+        }
+        $.each(all, function (color, str) {
+          if (!ok) return;
+          str = str.split('');
+          let next = str.shift();
+          while (next) {
+            let id = findUnused(next, color);
+            if (!id) {
+              ok = false;
+              return;
+            }
+            next = str.shift();
+            while (next >= 'a' && next <= 'h') {
+              let col = next.charCodeAt(0) - 'a'.charCodeAt(0) + 1;
+              let row = str.shift();
+              if (row < '1' || row > '8') {
+                ok = false;
+                return;
+              }
+              newPositions[`${col}-${row}`] = id;
+              next = str.shift();
+            }
+          }
+        });
+        if (ok) {
+          this.positions = newPositions;
+        }
+        return ok;
+      },
+      empty() {
+        this.positions = {};
+        this.enPassant = null;
+        this.turn = 'white';
+      },
       initial() {
         this.$root.figures.forEach((id) => {
           let f = this.$root.getData(id);
           this.positions["" + f.initialColumn + "-" + f.initialRow] = id;
         }, this);
+        this.enPassant = null;
+        this.turn = 'white';
       },
       setup() {
         var mouseEventTypes = {
@@ -181,20 +237,25 @@
 
             drop(e, ui) {
               let
-                $target = $(this), targetFigure = self.getFigureAt($target.data('col'), $target.data('row'));
-              let info = ui.draggable.data();
+                $target = $(this), targetCol = $target.data('col'), targetRow = $target.data('row'),
+                targetFigure = self.getFigureAt(targetCol, targetRow),
+                info = ui.draggable.data(), fig = self.$root.getData(info.id);
               $(ui.draggable).css({left: '', top: ''});
-              if (targetFigure && targetFigure.id !== info.id) {
+              if (targetFigure && targetFigure.id !== fig.id) {
                 self.$emit('removed', targetFigure);
               }
-              if (!targetFigure || targetFigure.id !== info.id) {
+              if (!targetFigure || targetFigure.id !== fig.id) {
                 if (info.source === 'board') {
                   self.setFigureAt(info.sourceColumn, info.sourceRow);
                 } else {
                   self.$emit('added', info);
                 }
-                self.setFigureAt($target.data('col'), $target.data('row'), info.id);
-                self.$emit('changed');
+                self.setFigureAt(targetCol, targetRow, info.id);
+                self.$emit('changed', {
+                  move: `${fig.abbreviation} ${info.sourceColumn}${info.sourceRow}${targetFigure?':':'-'}${targetCol}${targetRow}`,
+                  position: self.packPosition(),
+                  enPassant: null, // TODO
+                });
                 self.setup();
                 if (self.mode === 'game') self.turn = self.changeColor(self.turn);
               }
@@ -256,8 +317,8 @@
             [-1, 1].forEach((s) => {
               let o = this.getFigureAt(c + s, r + d);
               if (o && o.color !== f.color || !o && forCoverage) {
-                addIfNotCheck(c + s, r + d); // Pawn eats enemy
-                // TODO: А взятие на проходе?
+                addIfNotCheck(c + s, r + d); // Pawn capture enemy
+                // TODO: En passant
               }
             }, this);
             if (!forCoverage && r === f.initialRow && nextFree && this.isFree(c, r + d * 2)) {

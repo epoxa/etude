@@ -8,9 +8,14 @@
     </div>
     <div class="controls" v-if="mode === 'mastering'">
       <font-awesome-icon icon="play" class="icon-l-b" @click="run"></font-awesome-icon>
+      <img src="../assets/img/chess-board.svg" @click="reset">
     </div>
     <div class="controls" v-if="mode === 'game'">
       <font-awesome-icon icon="stop" class="icon-l-b" @click="stop"></font-awesome-icon>
+      <font-awesome-icon icon="fast-backward" class="icon-l-b" @click="moveFirst"></font-awesome-icon>
+      <font-awesome-icon icon="chevron-left" class="icon-l-b" @click="movePrior"></font-awesome-icon>
+      <font-awesome-icon icon="chevron-right" class="icon-l-b" @click="moveNext"></font-awesome-icon>
+      <font-awesome-icon icon="fast-forward" class="icon-l-b" @click="moveLast"></font-awesome-icon>
     </div>
   </div>
 </template>
@@ -28,9 +33,16 @@ export default {
         black: {},
       },
       mode: 'mastering',
+      playHistory: [],
+      playHistoryIndex: -1,
     }
   },
   methods: {
+    reset() {
+      if (this.$refs.board.positions.length !== 0) {
+        this.$refs.board.positions = {};
+      }
+    },
     removed(figure) {
       console.log('removed', figure);
       this.$set(this.spares[figure.color],[figure.id],true);
@@ -52,10 +64,13 @@ export default {
       this.$refs.blackContainer.setup();
       this.$refs.whiteContainer.setup();
     },
-    changed() {
+    changed(data) {
       // this.update();
       if (this.mode === 'mastering') {
         this.$nextTick(this.setupDragAndDrop);
+      } else if (this.mode === 'game') {
+        this.playHistory.splice(this.playHistoryIndex + 1, this.playHistory.length);
+        this.playHistoryIndex = this.playHistory.push(data) - 1;
       }
       location.hash = '?pos=' + this.$refs.board.packPosition();
     },
@@ -64,6 +79,19 @@ export default {
     },
     stop() {
       this.mode = 'mastering';
+    },
+    moveFirst() {
+    },
+    movePrior() {
+      this.playHistoryIndex--;
+      this.$refs.board.parsePosition(this.playHistory[this.playHistoryIndex]['position']);
+    },
+    moveNext() {
+      this.playHistoryIndex++;
+      this.$refs.board.parsePosition(this.playHistory[this.playHistoryIndex]['position']);
+    },
+    moveLast() {
+
     },
   },
   components: {
@@ -114,11 +142,19 @@ export default {
     background-color: @control-bar-color;
     box-sizing: border-box;
     padding: 3vmin;
+    display: flex;
   }
 
   .controls svg {
     font-size: 6vh;
     color: @control-color;
+    margin: 1vmin 3vmin;
+  }
+
+  .controls img {
+    width: 6vh;
+    color: @control-color;
+    margin: 1vmin 3vmin;
   }
 
   @media (orientation: portrait) {
